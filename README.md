@@ -1,8 +1,20 @@
 # utl-sometimes-you-need-a-fat-analysis-table-although-rarely
-Sometimes you need a fat analysis table although rarely
+    Sometimes you need a fat analysis table although rarely
+
     Nicely laid out example of why a fat table is needed?
 
-    Sometimes you need a fat analysis table although rarely
+    I take back the fat table statement
+
+    See additional solution by PGStats on end
+    https://communities.sas.com/t5/user/viewprofilepage/user-id/462
+
+     As a side note
+       Paul got me thinking. Why can't some SAS procs output a view?
+       Only a massive sort breaks the pipe. Presorted with by does not?
+
+    see github
+    https://tinyurl.com/ybmqrrkm
+    https://github.com/rogerjdeangelis/utl-sometimes-you-need-a-fat-analysis-table-although-rarely
 
     SAS Forum
     https://tinyurl.com/yb57e697
@@ -67,8 +79,6 @@ Sometimes you need a fat analysis table although rarely
 
     ;
 
-    https://communities.sas.com/t5/SAS-Programming/Computation-using-loop/m-p/511846
-
     * I made slight chages to your input;
     data have (keep=range col val);
      retain cnt -1 range col;
@@ -87,6 +97,60 @@ Sometimes you need a fat analysis table although rarely
     2005 B 150
     ;;;;
     run;quit;
+
+
+
+    *____   ____ ____  _        _
+    |  _ \ / ___/ ___|| |_ __ _| |_ ___
+    | |_) | |  _\___ \| __/ _` | __/ __|
+    |  __/| |_| |___) | || (_| | |_\__ \
+    |_|    \____|____/ \__\__,_|\__|___/
+
+    ;
+
+    I take back my solution see
+
+    PGstats
+    https://communities.sas.com/t5/user/viewprofilepage/user-id/462
+
+    data have;
+    input year firm $ factor A;
+    datalines;
+    1992  A 0.2 .
+    1993  A 0.5 25
+    1994  A 0.5 30
+    1995  A 0.5 40
+    2002  B 0.3 .
+    2003  B 0.5 50
+    2004  B 0.5 100
+    2005  B 0.5 150
+    ;
+
+    data want;
+    set have;
+    by firm;
+    if first.firm then B = factor;
+    else B = factor*prevB + A;
+    retain prevB;
+    prevB = B;
+    drop prevB;
+    run;
+
+    proc print data=want noobs; run;
+
+       year    firm    factor     A           B
+
+       1992     A        0.2       .      0.200
+       1993     A        0.5      25     25.100
+       1994     A        0.5      30     42.550
+       1995     A        0.5      40     61.275
+       2002     B        0.3       .      0.300
+       2003     B        0.5      50     50.150
+       2004     B        0.5     100    125.075
+       2005     B        0.5     150    212.538
+
+
+
 
 
 
